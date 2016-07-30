@@ -1,15 +1,18 @@
 ﻿using System.Web.Http;
 using BicycleBackend.Db;
+using BicycleBackend.Routing;
 
 namespace BicycleBackend.Controllers
 {
     public class RoutingController : ApiController
     {
         private readonly CrashContext _context;
+        private Router _router;
 
         public RoutingController()
         {
             _context = new CrashContext();
+            _router = new Router();
         }
 
         // segment
