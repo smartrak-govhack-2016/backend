@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using OsmSharp.Collections.Tags;
@@ -18,7 +17,7 @@ namespace BicycleBackend.Routing
     public class NeighborFinder : INeighborFinder
     {
         public string PathToMapData => $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\bicyclebicycle\\hamiltonmap";
-        //        public string PathToMapData => $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\bicyclebicycle\\new-zealand-latest.osm.pbf";
+
         private List<string> ThingsWeThinkAreSwell => new List<string>()
         {
             "cycleway",
@@ -30,21 +29,50 @@ namespace BicycleBackend.Routing
             "roundabout"
         };
 
+        private Dictionary<Point, IList<Segment>> _pointToNeighbors;
+
         public NeighborFinder()
         {
+            _pointToNeighbors = new Dictionary<Point, IList<Segment>>();
+
             using (var fileStream = new FileInfo(PathToMapData).OpenRead())
             {
                 var source = new XmlOsmStreamSource(fileStream);
+                var nodes = new Dictionary<long, Node>();
+                foreach (var thing in source)
+                {
+                    if(thing is Node)
+                    {
+                        var node = (Node)thing;
+                        nodes[node.Id.Value] = node;
+                        _pointToNeighbors[new Point(node)] = new List<Segment>();
+                    }
+                }
+
                 var filter = new OsmStreamFilterTagsFilter(TagsFilter);
                 filter.RegisterSource(source);
                 foreach (OsmGeo element in filter.ToArray())
                 {
-                    // add way
-                    // add nodes
-                    // add nodes to neighbor dictionary
-//                    element.
-//                    if (!element.Tags.Any(x => ThingsWeThinkAreSwell.Contains(x)))
-                        Debug.WriteLine(element.ToString());
+                    var way = element as Way;
+                    if (way == null)
+                        return;
+                    Point? lastPoint = null;
+                    foreach (var nodeId in way.Nodes)
+                    {
+                        var point = new Point(nodes[nodeId]);
+
+                        if (lastPoint != null)
+                        {
+                            Segment segment = new Segment
+                            {
+                                Start = lastPoint.Value,
+                                End = point
+                            };
+                            _pointToNeighbors[lastPoint.Value].Add(segment);
+                            _pointToNeighbors[point].Add(segment);
+                        }
+                        lastPoint = point;
+                    }
                 }
             }
         }
@@ -62,12 +90,22 @@ namespace BicycleBackend.Routing
 
         public IEnumerable<Segment> FindNeighbors(Segment segment)
         {
-            throw new NotImplementedException();
+            return _pointToNeighbors[segment.Start].Union(_pointToNeighbors[segment.End]);
         }
 
         public Segment FindNearestNeighbor(double lat, double lon)
         {
             throw new NotImplementedException();
+        }
+    }
+    public struct Point
+    {
+        public double Lat { get; }
+        public double Lon { get; }
+        public Point(Node node)
+        {
+            Lat = node.Latitude.Value;
+            Lon = node.Longitude.Value;
         }
     }
 }
