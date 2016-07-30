@@ -175,6 +175,7 @@
     <Compile Include="Routing\Distance.cs" />
     <Compile Include="Routing\NeighborFinder.cs" />
     <Compile Include="Routing\NNeighborFinder.cs" />
+    <Compile Include="Routing\CircleRouter.cs" />
     <Compile Include="Routing\Safety.cs" />
     <Compile Include="Routing\Segment.cs" />
     <Compile Include="Routing\Router.cs" />

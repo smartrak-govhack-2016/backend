@@ -41,25 +41,23 @@ namespace BicycleBackend.Routing
             {
                 var source = new XmlOsmStreamSource(fileStream);
                 var nodes = new Dictionary<long, Node>();
-                foreach (var thing in source)
+                foreach (var thing in source.Where(x => x.Type == OsmGeoType.Node))
                 {
-                    if(thing is Node)
-                    {
-                        var node = (Node)thing;
-                        nodes[node.Id.Value] = node;
-                        _pointToNeighbors[new Point(node)] = new List<Segment>();
-                    }
+	                var node = (Node)thing;
+	                nodes[node.Id.Value] = node;
+	                _pointToNeighbors[new Point(node)] = new List<Segment>();
                 }
-                foreach (OsmGeo element in source.Where(x => x.Type == OsmGeoType.Way))
+	            foreach (OsmGeo element in source.Where(x => x.Type == OsmGeoType.Way))
                 {
-                    if (element.Type == OsmGeoType.Way)
-                    {
-                        Console.WriteLine("wtf");
-                    }
                     var way = element as Way;
                     if (way == null || !WeCareAboutThisTypeOfWay(way))
                         continue;
                     Point? lastPoint = null;
+
+	                double weight = CalculateWeight(way);
+
+
+
                     foreach (var nodeId in way.Nodes)
                     {
                         var point = new Point(nodes[nodeId]);
@@ -69,7 +67,8 @@ namespace BicycleBackend.Routing
                             Segment segment = new Segment
                             {
                                 Start = lastPoint.Value,
-                                End = point
+                                End = point,
+								Weight = weight
                             };
                             allSegments.Add(segment);
                             _pointToNeighbors[lastPoint.Value].Add(segment);
@@ -82,7 +81,31 @@ namespace BicycleBackend.Routing
             _nnFinder = new NnFinder(allSegments);
         }
 
-        private bool WeCareAboutThisTypeOfWay(Way way)
+		/// <summary>
+		/// Returns bigger number for things you want to go down
+		/// </summary>
+		/// <param name="way"></param>
+		/// <returns></returns>
+	    private double CalculateWeight(Way way)
+	    {
+			if (way.Tags.ContainsKey("junction") && way.Tags["junction"] == "roundabout")
+			{
+				return 0.2; //fuck roundabouts
+			}
+			if (way.Tags.ContainsKey("maxspeed") && int.Parse(way.Tags["maxspeed"]) > 50)
+			{
+				return 0.2; //fuck high speed roads
+			}
+			if (way.Tags.ContainsKey("bicycle") || way.Tags.ContainsKey("cycleway") || (way.Tags.ContainsKey("highway") && way.Tags["highway"] == "cycleway"))
+			{
+				return 2; //fuck yeah bicycle
+			}
+
+			//eh
+			return 1;
+	    }
+
+	    private bool WeCareAboutThisTypeOfWay(Way way)
         {
             return way.Tags?.ContainsOneOfKeys(ThingsWeThinkAreSwell) ?? false;
         }

@@ -12,11 +12,13 @@ namespace BicycleBackend.Controllers
     {
         private static CrashContext _context;
         private static Router _router;
+        private static CircleRouter _circleRouter;
 
         public RoutingController()
         {
             _context = Cache.CrashContext;
             _router = Cache.Router;
+            _circleRouter = Cache.CircleRouter;
         }
 
         [HttpGet]
@@ -35,7 +37,22 @@ namespace BicycleBackend.Controllers
             }
         }
 
-        [HttpGet]
+		[HttpGet]
+		[Route("v1/circle/{startlat}/{startlon}")]
+		public IHttpActionResult GetCircleRoute(double startLat, double startLon)
+		{
+			try
+			{
+				var route = _circleRouter.FindCircleRoute(startLat, startLon);
+
+				return Ok(route);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest();
+			}
+		}
+		[HttpGet]
         [Route("v1/route/crashes")]
         public IHttpActionResult GetCrashes()
         {

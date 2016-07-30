@@ -40,7 +40,7 @@ namespace BicycleBackend.Routing
         private double LengthOfSegment(Segment segment)
         {
             return Distance.Haversine(segment.Start.Lat, segment.Start.Lon, segment.End.Lat,
-                segment.End.Lon);
+                segment.End.Lon) / segment.Weight;
         }
     }
 }

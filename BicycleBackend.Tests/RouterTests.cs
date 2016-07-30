@@ -16,5 +16,14 @@ namespace BicycleBackend.Tests
             Assert.IsNotNull(enumerable);
             Assert.IsTrue(enumerable.Any());
         }
-    }
+
+		[TestMethod]
+		public void CircleRouteTest()
+		{
+			var router = new CircleRouter(new NeighborFinder());
+			var enumerable = router.FindCircleRoute(-37.727128, 175.253179);
+			Assert.IsNotNull(enumerable);
+			Assert.IsTrue(enumerable.Any());
+		}
+	}
 }

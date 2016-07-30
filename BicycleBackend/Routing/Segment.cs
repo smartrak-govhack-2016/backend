@@ -5,6 +5,10 @@
         public Point Start { get; set; }
         public Point End { get; set; }
         public Safety SafetyRating { get; set; }
+		/// <summary>
+		/// Bigger is better
+		/// </summary>
+		public double Weight { get; set; }
         public string StreetName { get; set; }
 
         public override bool Equals(object obj)
