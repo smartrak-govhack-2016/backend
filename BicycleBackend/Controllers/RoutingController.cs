@@ -1,28 +1,38 @@
-﻿using System.Web.Http;
+﻿using System;
+using System.Linq;
+using System.Web.Http;
+using System.Web.Http.Cors;
 using BicycleBackend.Db;
 using BicycleBackend.Routing;
 
 namespace BicycleBackend.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class RoutingController : ApiController
     {
-        private readonly CrashContext _context;
-        private Router _router;
+        private static CrashContext _context;
+        private static Router _router;
 
         public RoutingController()
         {
-            _context = new CrashContext();
-            _router = new Router(new NeighborFinder());
+            _context = _context ?? new CrashContext();
+            _router = _router ?? new Router(new NeighborFinder());
         }
 
-        // segment
-        // name 
-        // danger level 1,2,3. Enum / text
         [HttpGet]
-        [Route("v1/route/{startlat},{startlon},{endlat},{endlon}")]
+        [Route("v1/route/{startlat}/{startlon}/{endlat}/{endlon}")]
         public IHttpActionResult GetRoute(double startLat, double startLon, double endLat, double endLon)
         {
-            return Ok(_router.Route(startLat, startLon, endLat, endLon));
+            try
+            {
+                var route = _router.Route(startLat, startLon, endLat, endLon);
+
+                return Ok(route);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
         }
 
         [HttpGet]

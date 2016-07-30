@@ -14,9 +14,11 @@ namespace BicycleBackend.Routing
 
         public IEnumerable<Segment> Route(double startLat, double startLon, double endLat, double endLon)
         {
+            double distance;
+            bool success;
             var start = _neighborFinder.FindNearestNeighbor(startLat, startLon);
             var goal = _neighborFinder.FindNearestNeighbor(endLat, endLon);
-            return AStarUtilities.FindMinimalPath(start, goal, _neighborFinder.FindNeighbors, GetScore, segment => GetHScore(segment, goal)).Result;
+            return AStarUtilities.FindMinimalPath(start, goal, _neighborFinder.FindNeighbors, GetScore, segment => GetHScore(segment, goal), out distance, out success);
         }
 
         private double GetScore(Segment segment, Segment otherSegment)
