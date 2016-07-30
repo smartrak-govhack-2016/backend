@@ -164,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Cache.cs" />
     <Compile Include="Controllers\RoutingController.cs" />
     <Compile Include="Db\CrashContext.cs" />
     <Compile Include="Models\Crash.cs" />

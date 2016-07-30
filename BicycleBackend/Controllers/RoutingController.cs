@@ -15,8 +15,8 @@ namespace BicycleBackend.Controllers
 
         public RoutingController()
         {
-            _context = _context ?? new CrashContext();
-            _router = _router ?? new Router(new NeighborFinder());
+            _context = Cache.CrashContext;
+            _router = Cache.Router;
         }
 
         [HttpGet]

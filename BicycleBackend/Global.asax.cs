@@ -7,6 +7,7 @@ namespace BicycleBackend
         protected void Application_Start()
         {
             GlobalConfiguration.Configure(WebApiConfig.Register);
+            Cache.DoNothing();
         }
     }
 }
