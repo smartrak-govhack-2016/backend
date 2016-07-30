@@ -7,10 +7,6 @@ namespace BicycleBackend.Routing
         /// <summary>
         /// returns distance in meters
         /// </summary>
-        /// <param name="lat"></param>
-        /// <param name="lon"></param>
-        /// <param name="otherLat"></param>
-        /// <param name="otherLon"></param>
         /// <returns></returns>
         public static double Haversine(double lat, double lon, double otherLat, double otherLon)
         {

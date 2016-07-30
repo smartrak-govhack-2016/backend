@@ -1,14 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Kts.AStar;
-using OsmSharp.Collections.Tags;
-using OsmSharp.Osm;
-using OsmSharp.Osm.PBF.Streams;
-using OsmSharp.Osm.Streams.Filters;
-using OsmSharp.Osm.Xml.Streams;
 
 namespace BicycleBackend.Routing
 {
@@ -30,12 +21,24 @@ namespace BicycleBackend.Routing
 
         private double GetScore(Segment segment, Segment otherSegment)
         {
-            throw new NotImplementedException();
+            return LengthOfSegment(segment) + LengthOfSegment(otherSegment);
         }
 
         private double GetHScore(Segment segment, Segment otherSegment)
         {
-            throw new NotImplementedException();
+            return DistanceBetweenSegments(segment, otherSegment);
+        }
+
+        private double DistanceBetweenSegments(Segment segment, Segment otherSegment)
+        {
+            return Distance.Haversine(segment.Start.Lat, segment.Start.Lon, otherSegment.Start.Lat,
+                otherSegment.Start.Lon);
+        }
+
+        private double LengthOfSegment(Segment segment)
+        {
+            return Distance.Haversine(segment.Start.Lat, segment.Start.Lon, segment.End.Lat,
+                segment.End.Lon);
         }
     }
 }
