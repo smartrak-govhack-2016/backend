@@ -49,12 +49,14 @@ namespace BicycleBackend.Routing
                     }
                 }
 
-                var filter = new OsmStreamFilterTagsFilter(TagsFilter);
-                filter.RegisterSource(source);
-                foreach (OsmGeo element in filter.ToArray())
+                foreach (OsmGeo element in source.Where(x => x.Type == OsmGeoType.Way))
                 {
+                    if (element.Type == OsmGeoType.Way)
+                    {
+                        Console.WriteLine("wtf");
+                    }
                     var way = element as Way;
-                    if (way == null)
+                    if (way == null || !WeCareAboutThisTypeOfWay(way))
                         return;
                     Point? lastPoint = null;
                     foreach (var nodeId in way.Nodes)
@@ -77,15 +79,9 @@ namespace BicycleBackend.Routing
             }
         }
 
-        private void TagsFilter(TagsCollectionBase collection)
+        private bool WeCareAboutThisTypeOfWay(Way way)
         {
-            foreach (var thing in ThingsWeThinkAreSwell)
-            {
-                if (collection.ContainsKey(thing))
-                {
-                    // do something maybe?
-                }
-            }
+            return way.Tags.ContainsOneOfKeys(ThingsWeThinkAreSwell);
         }
 
         public IEnumerable<Segment> FindNeighbors(Segment segment)

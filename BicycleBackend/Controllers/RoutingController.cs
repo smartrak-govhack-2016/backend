@@ -12,7 +12,7 @@ namespace BicycleBackend.Controllers
         public RoutingController()
         {
             _context = new CrashContext();
-            _router = new Router();
+            _router = new Router(new NeighborFinder());
         }
 
         // segment
@@ -22,7 +22,7 @@ namespace BicycleBackend.Controllers
         [Route("v1/route/{startlat},{startlon},{endlat},{endlon}")]
         public IHttpActionResult GetRoute(double startLat, double startLon, double endLat, double endLon)
         {
-            return Ok($"({startLat},{startLon}),({endLat},{endLon})");
+            return Ok(_router.Route(startLat, startLon, endLat, endLon));
         }
 
         [HttpGet]

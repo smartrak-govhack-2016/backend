@@ -1,4 +1,5 @@
 ﻿using System;
+using BicycleBackend.Routing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BicycleBackend.Tests
@@ -7,8 +8,9 @@ namespace BicycleBackend.Tests
     public class UnitTest1
     {
         [TestMethod]
-        public void TestMethod1()
+        public void NeighborFinderInit()
         {
+            new NeighborFinder();
         }
     }
 }
