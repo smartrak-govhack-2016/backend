@@ -90,7 +90,7 @@ namespace BicycleBackend.Routing
 	    {
 			if (way.Tags.ContainsKey("junction") && way.Tags["junction"] == "roundabout")
 			{
-				return 0.2; //fuck roundabouts
+				return 0.05; //fuck roundabouts
 			}
 			if (way.Tags.ContainsKey("maxspeed") && int.Parse(way.Tags["maxspeed"]) > 50)
 			{

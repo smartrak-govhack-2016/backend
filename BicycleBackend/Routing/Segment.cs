@@ -24,5 +24,17 @@
         {
             return Start.GetHashCode() ^ End.GetHashCode();
         }
+
+		public Segment ReversedClone()
+		{
+			return new Segment
+			{
+				Start = End,
+				End = Start,
+				SafetyRating = SafetyRating,
+				StreetName = StreetName,
+				Weight = Weight
+			};
+		}
     }
 }

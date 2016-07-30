@@ -12,7 +12,7 @@ namespace BicycleBackend.Routing
             _neighborFinder = neighborFinder;
         }
 
-        public IEnumerable<Segment> Route(double startLat, double startLon, double endLat, double endLon)
+        public List<Segment> Route(double startLat, double startLon, double endLat, double endLon)
         {
             double distance;
             bool success;

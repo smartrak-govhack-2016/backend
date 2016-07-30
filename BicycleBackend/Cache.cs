@@ -9,14 +9,13 @@ namespace BicycleBackend
 	public static class Cache
 	{
 		public static CrashContext CrashContext = new CrashContext();
+		public static readonly NeighborFinder NeighborFinder;
 		public static readonly Router Router;
-		public static readonly CircleRouter CircleRouter;
 
 		static Cache()
 		{
-			var nf = new NeighborFinder();
-			Router = new Router(nf);
-			CircleRouter = new CircleRouter(nf);
+			NeighborFinder = new NeighborFinder();
+			Router = new Router(NeighborFinder);
 		}
 		public static void DoNothing()
 		{ }

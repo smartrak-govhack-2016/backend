@@ -39,6 +39,7 @@ namespace BicycleBackend.Routing
 				var route = Route(currentEnd.Start.Lat, currentEnd.Start.Lon, end.End.Lat, end.End.Lon);
 				var routeDist = route.Sum(segment => Distance.Haversine(segment.Start.Lat, segment.Start.Lon, segment.End.Lat, segment.End.Lon) / 1000.0);
 
+				//TODO: We should count the route above ^^ in the LengthOfSegment check below to avoid those (but we can't add it to the list yet)
 				var endToStart = Route(route.Last().End.Lat, route.Last().End.Lon, startLat, startLon);
 				var endToStartDist = endToStart.Sum(segment => Distance.Haversine(segment.Start.Lat, segment.Start.Lon, segment.End.Lat, segment.End.Lon) / 1000.0);
 
@@ -93,7 +94,6 @@ namespace BicycleBackend.Routing
         {
 	        double weight = currentRoute.Contains(segment) ? 0.4 : 1;
 
-			//TODO: Weight against going down a road we have gone down
 			return Distance.Haversine(segment.Start.Lat, segment.Start.Lon, segment.End.Lat,
                 segment.End.Lon) / segment.Weight / weight;
         }

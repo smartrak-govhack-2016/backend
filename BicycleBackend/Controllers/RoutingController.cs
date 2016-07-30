@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using System.Web.Http.Cors;
@@ -12,13 +13,11 @@ namespace BicycleBackend.Controllers
     {
         private static CrashContext _context;
         private static Router _router;
-        private static CircleRouter _circleRouter;
 
         public RoutingController()
         {
             _context = Cache.CrashContext;
             _router = Cache.Router;
-            _circleRouter = Cache.CircleRouter;
         }
 
         [HttpGet]
@@ -29,7 +28,37 @@ namespace BicycleBackend.Controllers
             {
                 var route = _router.Route(startLat, startLon, endLat, endLon);
 
-                return Ok(route);
+				//Sort
+	            if (route != null && route.Count >= 2)
+	            {
+		            var result = new List<Segment>();
+					if (route[0].Start.Equals(route[1].Start) || route[0].Start.Equals(route[1].End))
+					{
+						//Reverse the 1st
+						result.Add(route[0].ReversedClone());
+					}
+					else
+					{
+						result.Add(route[0]);
+					}
+
+					//Now sort the rest of them
+					for (var i = 1; i < route.Count; i++)
+					{
+						var last = result.Last();
+						var now = route[i];
+						if (last.End.Equals(now.Start))
+						{
+							result.Add(now);
+						} else
+						{
+							result.Add(now.ReversedClone());
+						}
+					}
+		            route = result;
+	            }
+
+	            return Ok(route);
             }
             catch (Exception ex)
             {
@@ -43,7 +72,7 @@ namespace BicycleBackend.Controllers
 		{
 			try
 			{
-				var route = _circleRouter.FindCircleRoute(startLat, startLon);
+				var route = new CircleRouter(Cache.NeighborFinder).FindCircleRoute(startLat, startLon);
 
 				return Ok(route);
 			}
