@@ -35,6 +35,7 @@ namespace BicycleBackend.Routing
         public NeighborFinder()
         {
             _pointToNeighbors = new Dictionary<Point, IList<Segment>>();
+            List<Segment> allSegments = new List<Segment>();
 
             using (var fileStream = new FileInfo(PathToMapData).OpenRead())
             {
@@ -49,7 +50,6 @@ namespace BicycleBackend.Routing
                         _pointToNeighbors[new Point(node)] = new List<Segment>();
                     }
                 }
-                List<Segment> allSegments = new List<Segment>();
                 foreach (OsmGeo element in source.Where(x => x.Type == OsmGeoType.Way))
                 {
                     if (element.Type == OsmGeoType.Way)
@@ -58,7 +58,7 @@ namespace BicycleBackend.Routing
                     }
                     var way = element as Way;
                     if (way == null || !WeCareAboutThisTypeOfWay(way))
-                        return;
+                        continue;
                     Point? lastPoint = null;
                     foreach (var nodeId in way.Nodes)
                     {
@@ -78,13 +78,13 @@ namespace BicycleBackend.Routing
                         lastPoint = point;
                     }
                 }
-                _nnFinder = new NnFinder(allSegments);
             }
+            _nnFinder = new NnFinder(allSegments);
         }
 
         private bool WeCareAboutThisTypeOfWay(Way way)
         {
-            return way.Tags.ContainsOneOfKeys(ThingsWeThinkAreSwell);
+            return way.Tags?.ContainsOneOfKeys(ThingsWeThinkAreSwell) ?? false;
         }
 
         public IEnumerable<Segment> FindNeighbors(Segment segment)
