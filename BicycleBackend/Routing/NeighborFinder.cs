@@ -30,6 +30,7 @@ namespace BicycleBackend.Routing
         };
 
         private Dictionary<Point, IList<Segment>> _pointToNeighbors;
+        private NnFinder _nnFinder;
 
         public NeighborFinder()
         {
@@ -48,7 +49,7 @@ namespace BicycleBackend.Routing
                         _pointToNeighbors[new Point(node)] = new List<Segment>();
                     }
                 }
-
+                List<Segment> allSegments = new List<Segment>();
                 foreach (OsmGeo element in source.Where(x => x.Type == OsmGeoType.Way))
                 {
                     if (element.Type == OsmGeoType.Way)
@@ -70,12 +71,14 @@ namespace BicycleBackend.Routing
                                 Start = lastPoint.Value,
                                 End = point
                             };
+                            allSegments.Add(segment);
                             _pointToNeighbors[lastPoint.Value].Add(segment);
                             _pointToNeighbors[point].Add(segment);
                         }
                         lastPoint = point;
                     }
                 }
+                _nnFinder = new NnFinder(allSegments);
             }
         }
 
@@ -91,7 +94,7 @@ namespace BicycleBackend.Routing
 
         public Segment FindNearestNeighbor(double lat, double lon)
         {
-            throw new NotImplementedException();
+            return _nnFinder.NearestSegment(lat, lon);
         }
     }
     public struct Point
