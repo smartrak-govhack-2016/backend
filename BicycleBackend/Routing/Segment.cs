@@ -1,4 +1,6 @@
-﻿namespace BicycleBackend.Routing
+﻿using System.Collections.Generic;
+
+namespace BicycleBackend.Routing
 {
     public class Segment
     {
@@ -10,6 +12,10 @@
 		/// </summary>
 		public double Weight { get; set; }
         public string StreetName { get; set; }
+
+        public int IncedentCount { get; set; } = 1;
+
+        public double GetSafetyWeight => Weight/IncedentCount;
 
         public override bool Equals(object obj)
         {

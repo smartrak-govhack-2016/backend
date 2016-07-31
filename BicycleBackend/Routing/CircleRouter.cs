@@ -98,7 +98,7 @@ namespace BicycleBackend.Routing
 	        double weight = currentRoute.Contains(segment) || tempCrap.Contains(segment) ? 0.01 : 1;
 
 			return Distance.Haversine(segment.Start.Lat, segment.Start.Lon, segment.End.Lat,
-                segment.End.Lon) / segment.Weight / weight;
+                segment.End.Lon) / segment.GetSafetyWeight / weight;
         }
     }
 }

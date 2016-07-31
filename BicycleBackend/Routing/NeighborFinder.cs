@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using OsmSharp.Collections.Tags;
 using OsmSharp.Osm;
-using OsmSharp.Osm.Streams.Filters;
 using OsmSharp.Osm.Xml.Streams;
 
 namespace BicycleBackend.Routing
@@ -17,6 +15,7 @@ namespace BicycleBackend.Routing
     public class NeighborFinder : INeighborFinder
     {
         public string PathToMapData => $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\bicyclebicycle\\hamiltonmap";
+        public string PathToIncidents => $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\bicyclebicycle\\incidents.csv";
 
         private List<string> ThingsWeThinkAreSwell => new List<string>()
         {
@@ -56,8 +55,6 @@ namespace BicycleBackend.Routing
 
 	                double weight = CalculateWeight(way);
 
-
-
                     foreach (var nodeId in way.Nodes)
                     {
                         var point = new Point(nodes[nodeId]);
@@ -79,6 +76,18 @@ namespace BicycleBackend.Routing
                 }
             }
             _nnFinder = new NnFinder(allSegments);
+            LoadCrashData();
+        }
+
+        private void LoadCrashData()
+        {
+            foreach (var line in File.ReadAllLines(PathToIncidents))
+            {
+                var latLon = line.Split(',');
+                var segment = _nnFinder.NearestSegment(double.Parse(latLon[0]), double.Parse(latLon[1]));
+                if(segment != null)
+                    segment.IncedentCount++;
+            }
         }
 
 		/// <summary>
