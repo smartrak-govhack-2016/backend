@@ -15,6 +15,7 @@ namespace BicycleBackend.Routing
         }
 
 		List<Segment> currentRoute;
+        private List<Segment> tempCrap;
 		double currentRouteDist = 0;
 
 
@@ -35,11 +36,13 @@ namespace BicycleBackend.Routing
 				{
 					end = _neighborFinder.FindNearestNeighbor(currentEnd.End.Lat + (rand.NextDouble() - 0.5) * 0.01, currentEnd.End.Lon + (rand.NextDouble() - 0.5) * 0.01);
 				}
+			    tempCrap = new List<Segment>();
 
-				var route = Route(currentEnd.Start.Lat, currentEnd.Start.Lon, end.End.Lat, end.End.Lon);
+                var route = Route(currentEnd.Start.Lat, currentEnd.Start.Lon, end.End.Lat, end.End.Lon);
 				var routeDist = route.Sum(segment => Distance.Haversine(segment.Start.Lat, segment.Start.Lon, segment.End.Lat, segment.End.Lon) / 1000.0);
 
 				//TODO: We should count the route above ^^ in the LengthOfSegment check below to avoid those (but we can't add it to the list yet)
+			    tempCrap = route;
 				var endToStart = Route(route.Last().End.Lat, route.Last().End.Lon, startLat, startLon);
 				var endToStartDist = endToStart.Sum(segment => Distance.Haversine(segment.Start.Lat, segment.Start.Lon, segment.End.Lat, segment.End.Lon) / 1000.0);
 
@@ -92,7 +95,7 @@ namespace BicycleBackend.Routing
 
         private double LengthOfSegment(Segment segment)
         {
-	        double weight = currentRoute.Contains(segment) ? 0.4 : 1;
+	        double weight = currentRoute.Contains(segment) || tempCrap.Contains(segment) ? 0.01 : 1;
 
 			return Distance.Haversine(segment.Start.Lat, segment.Start.Lon, segment.End.Lat,
                 segment.End.Lon) / segment.Weight / weight;

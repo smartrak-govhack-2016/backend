@@ -28,37 +28,7 @@ namespace BicycleBackend.Controllers
             {
                 var route = _router.Route(startLat, startLon, endLat, endLon);
 
-				//Sort
-	            if (route != null && route.Count >= 2)
-	            {
-		            var result = new List<Segment>();
-					if (route[0].Start.Equals(route[1].Start) || route[0].Start.Equals(route[1].End))
-					{
-						//Reverse the 1st
-						result.Add(route[0].ReversedClone());
-					}
-					else
-					{
-						result.Add(route[0]);
-					}
-
-					//Now sort the rest of them
-					for (var i = 1; i < route.Count; i++)
-					{
-						var last = result.Last();
-						var now = route[i];
-						if (last.End.Equals(now.Start))
-						{
-							result.Add(now);
-						} else
-						{
-							result.Add(now.ReversedClone());
-						}
-					}
-		            route = result;
-	            }
-
-	            return Ok(route);
+                return Ok(SortRoute(route));
             }
             catch (Exception ex)
             {
@@ -66,15 +36,51 @@ namespace BicycleBackend.Controllers
             }
         }
 
-		[HttpGet]
+        private List<Segment> SortRoute(List<Segment> route)
+        {
+            if (route != null && route.Count >= 2)
+            {
+                var result = new List<Segment>();
+                if (route[0].Start.Equals(route[1].Start) || route[0].Start.Equals(route[1].End))
+                {
+                    //Reverse the 1st
+                    result.Add(route[0].ReversedClone());
+                }
+                else
+                {
+                    result.Add(route[0]);
+                }
+
+                //Now sort the rest of them
+                for (var i = 1; i < route.Count; i++)
+                {
+                    var last = result.Last();
+                    var now = route[i];
+                    if (last.End.Equals(now.Start))
+                    {
+                        result.Add(now);
+                    }
+                    else
+                    {
+                        result.Add(now.ReversedClone());
+                    }
+                }
+                route = result;
+            }
+            return route;
+        }
+
+        [HttpGet]
 		[Route("v1/circle/{startlat}/{startlon}")]
 		public IHttpActionResult GetCircleRoute(double startLat, double startLon)
 		{
 			try
 			{
-				var route = new CircleRouter(Cache.NeighborFinder).FindCircleRoute(startLat, startLon);
+				var route = new CircleRouter(Cache.NeighborFinder).FindCircleRoute(startLat, startLon).ToList();
 
-				return Ok(route);
+			    FixDupes(route);
+
+				return Ok(SortRoute(route));
 			}
 			catch (Exception ex)
 			{
@@ -86,6 +92,17 @@ namespace BicycleBackend.Controllers
         public IHttpActionResult GetCrashes()
         {
             return Ok(_context.GetCrashes());
+        }
+
+        private void FixDupes(List<Segment> route)
+        {
+            for (var i = 0; i < route.Count - 1; i++)
+            {
+                if (route[i] == route[i + 1])
+                {
+                    route.RemoveAt(i);
+                }
+            }
         }
     }
 }
